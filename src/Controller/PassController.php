@@ -15,12 +15,12 @@ class PassController extends AbstractController
         $plainPass = $request->get('plainPass');
 
         if ($plainPass === null) {
-            return new JsonResponse(null, JsonResponse::HTTP_BAD_REQUEST);
+            return new JsonResponse(['success' => false, 'message' => 'Une erreur est survenu, merci de réessayer.']);
         }
 
         $encryptedPass = password_hash($plainPass, PASSWORD_BCRYPT);
 
-        return new JsonResponse(['Hash'=> $encryptedPass, JsonResponse::HTTP_OK]);
+        return new JsonResponse(['hash' => $encryptedPass, JsonResponse::HTTP_OK]);
     }
 
     #[Route('/decryptPass', name: 'pass_decrypt', methods: ['POST'])]
@@ -31,6 +31,10 @@ class PassController extends AbstractController
 
         $decryptedPass = password_verify($plainPass, $hash);
 
-        return new JsonResponse(['hashGood'=> $decryptedPass]);
+        if ($decryptedPass === false) {
+            return new JsonResponse(['success' => false, 'message' => 'Le mot de passe ne correspond pas au hash donnée.']);
+        }
+
+        return new JsonResponse(['success' => true, 'message' => 'Le mot de passe correspond au hash donnée.']);
     }
 }
