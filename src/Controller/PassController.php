@@ -9,21 +9,27 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PassController extends AbstractController
 {
-    #[Route('/encryptPass', name: 'pass_encrypt', methods: ['POST'])]
+    #[Route('/encrypt', name: 'pass_encrypt', methods: ['POST'])]
     public function encrypt(Request $request): JsonResponse
     {
-        $plainPass = $request->get('plainPass');
+        $data = json_decode($request->getContent(), true);
+        
+        if ($data == null) {
+            return new JsonResponse(['success' => false, 'message' => 'Aucun mot de passe fourni.']);
+        }
 
-        if ($plainPass === null) {
-            return new JsonResponse(['success' => false, 'message' => 'Une erreur est survenu, merci de réessayer.']);
+        $plainPass = $data['plainPass'];
+
+        if ($plainPass == '') {
+            return new JsonResponse(['success' => false, 'message' => 'Aucun mot de passe fourni.']);
         }
 
         $encryptedPass = password_hash($plainPass, PASSWORD_BCRYPT);
 
-        return new JsonResponse(['hash' => $encryptedPass, JsonResponse::HTTP_OK]);
+        return new JsonResponse(['success' => true, 'hash' => $encryptedPass, 'original' => $plainPass]);
     }
 
-    #[Route('/decryptPass', name: 'pass_decrypt', methods: ['POST'])]
+    #[Route('/decrypt', name: 'pass_decrypt', methods: ['POST'])]
     public function decrypt(Request $request): JsonResponse
     {
         $plainPass = $request->get('plainPass');
