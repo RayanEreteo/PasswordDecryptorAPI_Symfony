@@ -29,11 +29,21 @@ class PassController extends AbstractController
         return new JsonResponse(['success' => true, 'hash' => $encryptedPass, 'original' => $plainPass]);
     }
 
-    #[Route('/decrypt', name: 'pass_decrypt', methods: ['POST'])]
+    #[Route('/verify', name: 'pass_decrypt', methods: ['POST'])]
     public function decrypt(Request $request): JsonResponse
     {
-        $plainPass = $request->get('plainPass');
-        $hash = $request->get('hash');
+        $data = json_decode($request->getContent(), true);
+        
+        if ($data == null) {
+            return new JsonResponse(['success' => false, 'message' => 'Aucune donnée.']);
+        }
+
+        $plainPass = $data["plainPass"];
+        $hash = $data["hash"];
+        
+        if ($plainPass == '' || $hash == '') {
+            return new JsonResponse(['success' => false, 'message' => 'Aucune donnée.']);
+        }
 
         $decryptedPass = password_verify($plainPass, $hash);
 
