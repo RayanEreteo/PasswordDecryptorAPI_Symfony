@@ -15,13 +15,13 @@ class PassController extends AbstractController
         $data = json_decode($request->getContent(), true);
         
         if ($data == null) {
-            return new JsonResponse(['success' => false, 'message' => 'Aucun mot de passe fourni.']);
+            return new JsonResponse(['success' => false, 'message' => 'Aucune donnée.']);
         }
 
         $plainPass = $data['plainPass'];
 
         if ($plainPass == '') {
-            return new JsonResponse(['success' => false, 'message' => 'Aucun mot de passe fourni.']);
+            return new JsonResponse(['success' => false, 'message' => 'Aucune donnée.']);
         }
 
         $encryptedPass = password_hash($plainPass, PASSWORD_BCRYPT);
